@@ -2,10 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media.Imaging;
 using PuppeteerSharp;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,7 +44,7 @@ namespace tiktok_organizer.Views
         {
             // create new instance of chrome browser
             var tmpDir = GetTemporaryDirectory();
-            Process.Start(@"C:\Program Files\Google\Chrome\Application\chrome.exe", $@"--remote-debugging-port=9222 --user-data-dir=""{tmpDir}""");
+            Process.Start(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", $@"--remote-debugging-port=9222 --user-data-dir=""{tmpDir}""");
 
             using var document = JsonDocument.Parse(await httpClient.GetStringAsync("http://127.0.0.1:9222/json/version"));
             var webSocketDebuggerUrl = document.RootElement.EnumerateObject().FirstOrDefault(p => p.Name == "webSocketDebuggerUrl").Value.GetString();
@@ -84,10 +84,11 @@ namespace tiktok_organizer.Views
                     }
                 }
 
-                System.Drawing.Image thumbnail = null;
+                Bitmap thumbnail = null;
                 if (thumb.Length > 0)
                 {
-                    thumbnail = System.Drawing.Image.FromStream(await thumb[0].ScreenshotStreamAsync());
+                    // thumbnail = System.Drawing.Image.FromStream(await thumb[0].ScreenshotStreamAsync());
+                    thumbnail = new Bitmap(await thumb[0].ScreenshotStreamAsync());
                     //thumbnail.Save(tmpDir + $"\\img-{i}.jpg");
                     i++;
                     /*
@@ -104,9 +105,8 @@ namespace tiktok_organizer.Views
 
                     }
                     */
-                }                
-
-                ctx.VideoList.Add(new Models.Video { VideoLink = linkVideo.ToString(), VideoThumb = thumbnail });
+                    ctx.VideoList.Add(new Models.Video { VideoLink = linkVideo.ToString(), VideoThumb = thumbnail });
+                }
             }
             
             int a = 0;
